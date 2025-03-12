@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import PixelSteak from "./PixelSteak";
 
 interface CookingAnimationProps {
   isRunning: boolean;
@@ -21,36 +22,6 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
 }) => {
   const [showSeasoning, setShowSeasoning] = useState(false);
   const [isPlated, setIsPlated] = useState(false);
-  
-  // Map doneness to corresponding steak images
-  const getDonenessImage = () => {
-    // The color is our identifier for doneness level
-    switch(steakColor) {
-      case "#E53935": // rare
-        return "/steak-rare.png";
-      case "#D32F2F": // medium-rare
-        return "/steak-medium-rare.png";
-      case "#C62828": // medium
-        return "/steak-medium.png";
-      case "#B71C1C": // medium-well
-        return "/steak-medium-well.png";
-      case "#8B0000": // well-done
-        return "/steak-well-done.png";
-      default:
-        return "/steak-raw.png"; // default raw steak
-    }
-  };
-  
-  // Get the appropriate image based on cooking state
-  const getSteakImage = () => {
-    if (!isRunning && !isComplete) {
-      return "/steak-raw.png";
-    } else if (isRunning && !isComplete) {
-      return "/steak-cooking.gif";
-    } else {
-      return getDonenessImage();
-    }
-  };
 
   useEffect(() => {
     if (isComplete) {
@@ -86,22 +57,15 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
       >
         {/* Cooking surface (pan or grill) */}
         {!isPlated && (
-          <div className="absolute inset-0 -z-10">
-            <img 
-              src="/cooking-surface.png" 
-              alt="Cooking surface" 
-              className="w-full h-auto"
-            />
-          </div>
+          <div className="absolute inset-0 -z-10 bg-steak-pan rounded-full" />
         )}
         
-        {/* The steak image */}
-        <div className="relative z-10 w-48 h-48 mx-auto">
-          <img 
-            src={getSteakImage()} 
-            alt="Steak" 
+        {/* The steak */}
+        <div className="relative z-10 w-48 h-48 mx-auto flex items-center justify-center">
+          <PixelSteak 
+            steakColor={steakColor}
             className={cn(
-              "w-full h-full object-contain transition-all duration-300",
+              "w-40 h-40 transition-all duration-300",
               isRunning ? "animate-cooking" : ""
             )}
           />
