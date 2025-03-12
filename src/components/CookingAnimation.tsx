@@ -22,33 +22,35 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
   const [showSeasoning, setShowSeasoning] = useState(false);
   const [isPlated, setIsPlated] = useState(false);
   
-  // Create a 10x10 grid for our pixel steak
-  const steakShape = [
-    [0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ];
+  // Map doneness to corresponding steak images
+  const getDonenessImage = () => {
+    // The color is our identifier for doneness level
+    switch(steakColor) {
+      case "#E53935": // rare
+        return "/steak-rare.png";
+      case "#D32F2F": // medium-rare
+        return "/steak-medium-rare.png";
+      case "#C62828": // medium
+        return "/steak-medium.png";
+      case "#B71C1C": // medium-well
+        return "/steak-medium-well.png";
+      case "#8B0000": // well-done
+        return "/steak-well-done.png";
+      default:
+        return "/steak-raw.png"; // default raw steak
+    }
+  };
   
-  // The crust pattern will appear based on cooking time
-  const crustShape = [
-    [0, 0, 2, 2, 2, 2, 0, 0, 0, 0],
-    [0, 2, 0, 0, 0, 0, 2, 0, 0, 0],
-    [2, 0, 0, 0, 0, 0, 0, 2, 0, 0],
-    [2, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-    [2, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-    [2, 0, 0, 0, 0, 0, 0, 2, 0, 0],
-    [0, 2, 0, 0, 0, 0, 2, 0, 0, 0],
-    [0, 0, 2, 2, 2, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ];
+  // Get the appropriate image based on cooking state
+  const getSteakImage = () => {
+    if (!isRunning && !isComplete) {
+      return "/steak-raw.png";
+    } else if (isRunning && !isComplete) {
+      return "/steak-cooking.gif";
+    } else {
+      return getDonenessImage();
+    }
+  };
 
   useEffect(() => {
     if (isComplete) {
@@ -62,22 +64,6 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
     }
   }, [isComplete]);
 
-  const seasoning = isComplete && showSeasoning && !isPlated ? (
-    <>
-      {Array.from({ length: 20 }).map((_, i) => (
-        <div
-          key={`seasoning-${i}`}
-          className="pixel-seasoning"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 0.5}s`,
-          }}
-        />
-      ))}
-    </>
-  ) : null;
-
   return (
     <div 
       className={cn(
@@ -88,7 +74,7 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
     >
       <div
         className={cn(
-          "relative grid grid-cols-10 gap-0.5 transition-transform duration-500",
+          "relative transition-transform duration-500",
           isRunning && !isComplete ? "animate-sizzle" : "",
           flipped ? "animate-flip" : "",
           isPlated ? "scale-125" : ""
@@ -98,86 +84,45 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
           transformOrigin: "center center",
         }}
       >
-        {/* The background frying pan */}
-        {!isPlated && steakShape.map((row, i) => 
-          row.map((cell, j) => (
-            <div
-              key={`pan-${i}-${j}`}
-              className={cn(
-                "pixel-pan",
-                cell === 0 ? "rounded-none" : "rounded-none"
-              )}
+        {/* Cooking surface (pan or grill) */}
+        {!isPlated && (
+          <div className="absolute inset-0 -z-10">
+            <img 
+              src="/cooking-surface.png" 
+              alt="Cooking surface" 
+              className="w-full h-auto"
             />
-          ))
+          </div>
         )}
         
-        {/* The steak itself, shown on top of the pan */}
-        <div 
-          className={cn(
-            "absolute inset-0 grid grid-cols-10 gap-0.5 transition-all duration-500",
-            isPlated ? "bg-transparent" : "",
-          )}
-          style={{
-            zIndex: 10,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          {steakShape.map((row, i) =>
-            row.map((cell, j) => {
-              // Only render pixels where the steak exists
-              if (cell === 0) return <div key={`empty-${i}-${j}`} className="pixel" />;
-              
-              // Set the cooking animation duration based on total time
-              const cookingStyle = {
-                "--steak-color": steakColor,
-                "--cooking-duration": `${totalTime}s`,
-              } as React.CSSProperties;
-              
-              return (
-                <div
-                  key={`steak-${i}-${j}`}
-                  className={cn(
-                    "pixel-steak rounded-sm",
-                    isRunning && !isComplete ? "animate-cooking" : "",
-                    isComplete ? "transition-transform" : ""
-                  )}
-                  style={cookingStyle}
-                />
-              );
-            })
-          )}
-          
-          {/* Crust effect */}
-          <div 
-            className="absolute inset-0 grid grid-cols-10 gap-0.5 transition-all duration-500"
-            style={{ opacity: isRunning || isComplete ? 1 : 0 }}
-          >
-            {crustShape.map((row, i) =>
-              row.map((cell, j) => {
-                if (cell !== 2) return <div key={`no-crust-${i}-${j}`} className="pixel" />;
-                
-                return (
-                  <div
-                    key={`crust-${i}-${j}`}
-                    className={cn(
-                      "pixel-crust rounded-sm",
-                      isComplete ? "opacity-100" : "opacity-70"
-                    )}
-                    style={{
-                      opacity: isRunning ? 
-                        ((totalTime - (totalTime * 0.8)) / totalTime) * 100 : 
-                        isComplete ? 1 : 0,
-                      transition: "opacity var(--cooking-duration, 60s) ease-in"
-                    }}
-                  />
-                );
-              })
+        {/* The steak image */}
+        <div className="relative z-10 w-48 h-48 mx-auto">
+          <img 
+            src={getSteakImage()} 
+            alt="Steak" 
+            className={cn(
+              "w-full h-full object-contain transition-all duration-300",
+              isRunning ? "animate-cooking" : ""
             )}
-          </div>
+          />
         </div>
         
         {/* Seasoning animation */}
-        {seasoning}
+        {isComplete && showSeasoning && !isPlated && (
+          <div className="absolute inset-0 z-20">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={`seasoning-${i}`}
+                className="absolute w-1 h-1 bg-white rounded-full animate-season"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 0.5}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
         
         {/* Plate (only shown when complete) */}
         {isPlated && (
