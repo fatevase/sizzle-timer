@@ -8,7 +8,7 @@ interface PixelSteakProps {
 }
 
 const PixelSteak: React.FC<PixelSteakProps> = ({ steakColor, className }) => {
-  // Create a 24x24 matrix for a more realistic steak shape
+  // Create a 24x24 matrix for the steak shape
   const steakMatrix = [
     "000000111111111100000000",
     "000011111111111111100000",
@@ -36,68 +36,20 @@ const PixelSteak: React.FC<PixelSteakProps> = ({ steakColor, className }) => {
     "000000011111110000000000",
   ];
 
-  // Pan matrix where: 2 = pan border, 0 = pan surface, -1 = empty space
-  const panMatrix = [
-    "-1-1-1222222222222-1-1-1",
-    "-1-1222222222222222-1-1",
-    "-122222222222222222221-",
-    "12222222222222222222221",
-    "22222000000000000022222",
-    "22220000000000000002222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22200000000000000000222",
-    "22220000000000000002222",
-    "22222000000000000022222",
-    "12222222222222222222221",
-    "-122222222222222222221-",
-    "-1-1222222222222222-1-1",
-    "-1-1-1222222222222-1-1-1",
-  ];
-
   return (
-    <div className={cn("relative", className)}>
-      {/* Render the pan first */}
-      <div className="absolute inset-0 grid grid-cols-24 gap-0">
-        {panMatrix.map((row, i) =>
-          row.split("").map((cell, j) => (
-            <div
-              key={`pan-${i}-${j}`}
-              className={cn(
-                "w-1 h-1",
-                cell === "2" ? "bg-steak-pan" : 
-                cell === "0" ? "bg-steak-pan opacity-80" : 
-                "bg-transparent"
-              )}
-            />
-          ))
-        )}
-      </div>
-      
-      {/* Render the steak on top */}
-      <div className="relative grid grid-cols-24 gap-0">
-        {steakMatrix.map((row, i) =>
-          row.split("").map((cell, j) => (
-            <div
-              key={`${i}-${j}`}
-              className={cn(
-                "w-1 h-1",
-                cell === "1" ? "bg-current" : "bg-transparent"
-              )}
-              style={{ color: cell === "1" ? steakColor : "transparent" }}
-            />
-          ))
-        )}
-      </div>
+    <div className={cn("grid grid-cols-24 gap-0", className)}>
+      {steakMatrix.map((row, i) =>
+        row.split("").map((cell, j) => (
+          <div
+            key={`${i}-${j}`}
+            className={cn(
+              "w-1 h-1",
+              cell === "1" ? "bg-current" : "bg-transparent"
+            )}
+            style={{ color: cell === "1" ? steakColor : "transparent" }}
+          />
+        ))
+      )}
     </div>
   );
 };
