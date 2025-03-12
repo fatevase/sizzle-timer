@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import PixelSteak from "./PixelSteak";
@@ -26,19 +25,19 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
   useEffect(() => {
     if (isComplete) {
       setShowSeasoning(true);
-      
+
       const timer = setTimeout(() => {
         setIsPlated(true);
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isComplete]);
 
   return (
-    <div 
+    <div
       className={cn(
-        "relative mx-auto transition-all duration-500", 
+        "relative mx-auto transition-all duration-500",
         isPlated ? "mt-8" : "",
         className
       )}
@@ -57,20 +56,34 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
       >
         {/* Cooking surface (pan or grill) */}
         {!isPlated && (
-          <div className="absolute inset-0 -z-10 bg-steak-pan rounded-full" />
+          <div className="absolute -inset-5 -z-10 bg-steak-pan rounded-full" 
+          style={{
+            width: '50%',
+            maxWidth: '240px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            borderRadius: '20%',
+            boxShadow: 'inset0 0 24px rgba(0,0,0,0.3), 0 0 12px rgba(0,0,0,0.5)',
+            border: '-4px solid rgba(0,0,0,0.2)',
+
+          }}
+          />
         )}
-        
+
         {/* The steak */}
         <div className="relative z-10 w-48 h-48 mx-auto flex items-center justify-center">
-          <PixelSteak 
+          <PixelSteak
+            isRunning={isRunning}
+            isComplete={isComplete}
+            totalTime={totalTime}
             steakColor={steakColor}
             className={cn(
-              "w-40 h-40 transition-all duration-300",
-              isRunning ? "animate-cooking" : ""
+              "absolute  w-40 h-40 transition-all  duration-300",
+              // isRunning ? "animate-cooking" : ""
             )}
           />
         </div>
-        
+
         {/* Seasoning animation */}
         {isComplete && showSeasoning && !isPlated && (
           <div className="absolute inset-0 z-20">
@@ -87,14 +100,14 @@ const CookingAnimation: React.FC<CookingAnimationProps> = ({
             ))}
           </div>
         )}
-        
+
         {/* Plate (only shown when complete) */}
         {isPlated && (
-          <div 
+          <div
             className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/4 w-48 h-10 bg-white rounded-full animate-fade-in"
-            style={{ 
+            style={{
               boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
-              zIndex: 5
+              zIndex: 5,
             }}
           />
         )}
