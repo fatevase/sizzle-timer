@@ -1,6 +1,12 @@
 
 import React from "react";
-import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface DonenessOption {
   id: string;
@@ -25,32 +31,29 @@ const DonenessPicker: React.FC<DonessPickerProps> = ({
       <label className="block text-base font-medium text-center mb-3">
         选择牛排几分熟
       </label>
-      <div className="flex flex-wrap gap-3 justify-center">
-        {options.map((option) => (
-          <button
-            key={option.id}
-            onClick={() => onSelect(option.id)}
-            className={cn(
-              "relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group",
-              selected === option.id
-                ? "ring-2 ring-primary ring-offset-2 scale-105"
-                : "hover:scale-105"
-            )}
-            style={{
-              backgroundColor: selected === option.id ? option.color : undefined,
-              color: selected === option.id ? "white" : undefined,
-            }}
-          >
-            <span
-              className={cn(
-                "absolute inset-0 opacity-10",
-                selected === option.id ? "opacity-100" : ""
-              )}
-              style={{ backgroundColor: option.color }}
-            />
-            <span className="relative z-10">{option.label}</span>
-          </button>
-        ))}
+      <div className="flex justify-center">
+        <Select value={selected} onValueChange={onSelect}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="选择熟度" />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem 
+                key={option.id} 
+                value={option.id}
+                className="flex items-center"
+              >
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="inline-block w-3 h-3 rounded-full"
+                    style={{ backgroundColor: option.color }} 
+                  />
+                  <span>{option.label}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

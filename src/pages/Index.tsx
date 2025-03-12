@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import DonenessPicker, { DonenessOption } from "@/components/DonenessPicker";
 import Timer from "@/components/Timer";
